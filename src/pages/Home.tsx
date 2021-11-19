@@ -1,5 +1,8 @@
+import { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Button from '../components/Button';
+import { TestContext } from '../App';
+import { firebase, auth } from '../services/firebase';
 import '../styles/auth.scss';
 import illustrationImg from '../assets/images/illustration.svg';
 import logoImg from '../assets/images/logo.svg';
@@ -8,8 +11,18 @@ import googleIconImg from '../assets/images/google-icon.svg';
 function Home() {
   const navigate = useNavigate();
 
-  function navigateToNewRoom() {
-    navigate('/rooms/new');
+  const { value, setValue } = useContext(TestContext);
+
+  function handleCreateRoom() {
+    const provider = new firebase.auth.GoogleAuthProvider();
+
+    auth.signInWithPopup(provider).then(result => {
+      console.log(result);
+
+      console.log(value);
+
+      navigate('/rooms/new');
+    });
   }
 
   return (
@@ -26,7 +39,7 @@ function Home() {
         <div className="main-content">
           <img src={logoImg} alt="Letmeask" />
 
-          <button className="create-room" onClick={navigateToNewRoom}>
+          <button className="create-room" onClick={handleCreateRoom}>
             <img src={googleIconImg} alt="Logo do Google" />
             Crie sua sala com o Google
           </button>
