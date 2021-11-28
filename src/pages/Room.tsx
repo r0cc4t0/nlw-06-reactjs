@@ -1,4 +1,4 @@
-import { useState, FormEvent } from 'react';
+import { useEffect, useState, FormEvent } from 'react';
 import { useParams } from 'react-router-dom';
 import useAuth from '../hooks/useAuth';
 import { database } from '../services/firebase';
@@ -11,13 +11,60 @@ type RoomParams = {
   id: string;
 };
 
+type FirebaseQuestions = Record<string, {
+  content: string;
+  author: {
+    name: string;
+    avatar: string;
+  };
+  isHighlighted: boolean;
+  isAnswered: boolean;
+}>;
+
+type Question = {
+  id: string;
+  content: string;
+  author: {
+    name: string;
+    avatar: string;
+  };
+  isHighlighted: boolean;
+  isAnswered: boolean;
+};
+
 function Room() {
   const [newQuestion, setNewQuestion] = useState('');
+  const [questions, setQuestions] = useState<Question[]>([]);
+  const [title, setTitle] = useState('');
 
   const { user } = useAuth();
 
   const params = useParams() as RoomParams;
   const roomID = params.id;
+
+  useEffect(() => {
+    const roomRef = database.ref(`rooms/${roomID}`);
+
+    roomRef.on('value', room => {
+      const databaseRoom = room.val();
+
+      const firebaseQuestions: FirebaseQuestions = databaseRoom.questions ?? {};
+
+      const parsedQuestions = Object.entries(firebaseQuestions).map(([key, value]) => {
+        return {
+          id: key,
+          content: value.content,
+          author: value.author,
+          isHighlighted: value.isHighlighted,
+          isAnswered: value.isAnswered
+        };
+      });
+
+      setTitle(databaseRoom.title);
+
+      setQuestions(parsedQuestions);
+    });
+  }, [roomID]);
 
   async function handleSendQuestion(event: FormEvent) {
     event.preventDefault();
@@ -57,9 +104,9 @@ function Room() {
 
       <main>
         <div className="room-title">
-          <h1>Sala React</h1>
+          <h1>Sala {title}</h1>
 
-          <span>4 perguntas</span>
+          {questions.length > 0 && <span>{questions.length} pergunta(s)</span>}
         </div>
 
         <form onSubmit={handleSendQuestion}>
@@ -82,6 +129,8 @@ function Room() {
             <Button type="submit" disabled={!user}>Enviar Pergunta</Button>
           </div>
         </form>
+
+        {JSON.stringify(questions)}
       </main>
     </div>
   );
