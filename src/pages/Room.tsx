@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import useAuth from '../hooks/useAuth';
 import { database } from '../services/firebase';
 import RoomCode from '../components/RoomCode';
+import Question from '../components/Question';
 import Button from '../components/Button';
 import '../styles/room.scss';
 import logoImg from '../assets/images/logo.svg';
@@ -21,7 +22,7 @@ type FirebaseQuestions = Record<string, {
   isAnswered: boolean;
 }>;
 
-type Question = {
+type QuestionType = {
   id: string;
   content: string;
   author: {
@@ -34,7 +35,7 @@ type Question = {
 
 function Room() {
   const [newQuestion, setNewQuestion] = useState('');
-  const [questions, setQuestions] = useState<Question[]>([]);
+  const [questions, setQuestions] = useState<QuestionType[]>([]);
   const [title, setTitle] = useState('');
 
   const { user } = useAuth();
@@ -130,7 +131,17 @@ function Room() {
           </div>
         </form>
 
-        {JSON.stringify(questions)}
+        <div className="question-list">
+          {questions.map(question => {
+            return (
+              <Question
+                key={question.id}
+                content={question.content}
+                author={question.author}
+              />
+            );
+          })}
+        </div>
       </main>
     </div>
   );
