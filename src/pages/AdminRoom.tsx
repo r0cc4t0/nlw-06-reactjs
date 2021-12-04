@@ -1,4 +1,4 @@
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import useRoom from '../hooks/useRoom';
 import { database } from '../services/firebase';
 import RoomCode from '../components/RoomCode';
@@ -18,10 +18,20 @@ function AdminRoom() {
 
   const { title, questions } = useRoom(roomID);
 
+  const navigate = useNavigate();
+
   async function handleDeleteQuestion(questionID: string) {
-    if (window.confirm('Tem certeza que você deseja excluir esta pergunta?')) {
+    if (window.confirm('Are you sure you want to delete this question?')) {
       await database.ref(`rooms/${roomID}/questions/${questionID}`).remove();
     }
+  }
+
+  async function handleEndRoom() {
+    await database.ref(`rooms/${roomID}`).update({
+      endedAt: new Date()
+    });
+
+    navigate('/');
   }
 
   return (
@@ -33,7 +43,7 @@ function AdminRoom() {
           <div>
             <RoomCode code={roomID} />
 
-            <Button isOutlined>Encerrar Sala</Button>
+            <Button isOutlined onClick={handleEndRoom}>Encerrar Sala</Button>
           </div>
         </div>
       </header>

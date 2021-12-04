@@ -37,6 +37,11 @@ function Home() {
       return;
     }
 
+    if (roomRef.val().endedAt) {
+      alert('The room is already closed!');
+      return;
+    }
+
     navigate(`/rooms/${roomCode}`);
   }
 
