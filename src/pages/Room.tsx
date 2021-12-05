@@ -1,5 +1,6 @@
 import { useState, FormEvent } from 'react';
 import { useParams } from 'react-router-dom';
+import cx from 'classnames';
 import useAuth from '../hooks/useAuth';
 import useRoom from '../hooks/useRoom';
 import { database } from '../services/firebase';
@@ -111,7 +112,10 @@ function Room() {
                 {!question.isAnswered && (
                   <button
                     type="button"
-                    className={`like-button ${question.likeId ? 'liked' : ''}`}
+                    className={cx(
+                      'like-button',
+                      { liked: question.likeId }
+                    )}
                     aria-label="Marcar como gostei"
                     onClick={() => handleLikeQuestion(question.id, question.likeId)}
                   >
